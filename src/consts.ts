@@ -3,4 +3,4 @@ export const TINY_ERROR_DEFAULT_CODE_TAG = 'GENERAL';
 export const TINY_ERROR_DEFAULT_INTERNAL = true;
 
 export const TINY_ERROR_UNKNOWN_STRING = () => 'UNKNOWN';
-export const TINY_ERROR_DEFAULT_STACK = 'No stack trace available';
+export const TINY_ERROR_UNKNOWN_STACK = 'No stack trace available';
