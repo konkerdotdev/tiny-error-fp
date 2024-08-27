@@ -7,21 +7,7 @@ import {
   TINY_ERROR_DEFAULT_STATUS_CODE,
   TINY_ERROR_UNKNOWN_STRING,
 } from './consts';
-import { hasErrorMessage, hasTag, isError } from './lib';
-
-// --------------------------------------------------------------------------
-export type TinyError<T extends string> = Error & {
-  readonly _tag: T;
-
-  readonly name: string; // From Error
-  readonly message: string; // From Error
-  readonly stack?: string; // From Error
-
-  readonly statusCode: number;
-  readonly codeTag: string;
-  readonly cause?: unknown;
-  readonly internal: boolean;
-};
+import { getStackTraceString, hasErrorMessage, hasTag, isError } from './lib';
 
 // --------------------------------------------------------------------------
 export class TinyErrorC<T extends string> extends Error {
@@ -49,9 +35,25 @@ export class TinyErrorC<T extends string> extends Error {
     this.statusCode = statusCode ?? TINY_ERROR_DEFAULT_STATUS_CODE;
     this.cause = cause ?? TINY_ERROR_UNKNOWN_STRING();
     this.internal = internal ?? TINY_ERROR_DEFAULT_INTERNAL;
-    this.stack = stack ?? super.stack!;
+    this.stack = stack ?? super.stack ?? getStackTraceString();
+  }
+
+  toObject() {
+    return {
+      _tag: this._tag,
+      name: this.name,
+      message: this.message,
+      codeTag: this.codeTag,
+      statusCode: this.statusCode,
+      cause: this.cause,
+      internal: this.internal,
+      stack: this.stack,
+    };
   }
 }
+
+// --------------------------------------------------------------------------
+export type TinyError<T extends string> = TinyErrorC<T>;
 
 // --------------------------------------------------------------------------
 export const TinyError =

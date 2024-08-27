@@ -27,8 +27,8 @@ export function toError(x: unknown): Error {
 }
 
 // --------------------------------------------------------------------------
-export function getStackTraceString(): string | undefined {
+export function getStackTraceString(): string {
   // eslint-disable-next-line fp/no-mutation
   Error.stackTraceLimit = 100;
-  return Error().stack;
+  return Error().stack!;
 }
