@@ -92,7 +92,7 @@ export const isTinyError =
 
 // --------------------------------------------------------------------------
 export const toTinyError =
-  <T extends string>(tag: T) =>
+  <T extends string>(tag: T, ctor: ReturnType<typeof TinyError<T>>) =>
   (
     x: unknown,
     name?: string,
@@ -104,15 +104,15 @@ export const toTinyError =
   ): TinyError<T> => {
     if (isTinyError(tag)(x)) return x;
     if (isError(x)) {
-      return TinyError(tag)(name ?? x.name, message ?? x.message, statusCode, codeTag, cause ?? x, internal, x.stack);
+      return ctor(name ?? x.name, message ?? x.message, statusCode, codeTag, cause ?? x, internal, x.stack);
     }
     if (hasErrorMessage(x)) {
-      return TinyError(tag)(name, message ?? x.message, statusCode, codeTag, cause ?? x, internal);
+      return ctor(name, message ?? x.message, statusCode, codeTag, cause ?? x, internal);
     }
     if (typeof x === 'string') {
-      return TinyError(tag)(name, message ?? x, statusCode, codeTag, cause ?? x, internal);
+      return ctor(name, message ?? x, statusCode, codeTag, cause ?? x, internal);
     }
-    return TinyError(tag)(
+    return ctor(
       name,
       message ??
         P.pipe(
