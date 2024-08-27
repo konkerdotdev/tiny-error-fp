@@ -1,6 +1,34 @@
 import * as unit from './index';
 
 describe('TinyError', () => {
+  describe('TinyError', () => {
+    it('should work as expected with default params', () => {
+      expect(unit.TinyError('TEST_TAG')().toObject()).toEqual({
+        _tag: 'TEST_TAG',
+        name: 'TEST_TAG',
+        message: 'TEST_TAG',
+        statusCode: -1,
+        codeTag: 'GENERAL',
+        cause: 'UNKNOWN',
+        internal: true,
+        stack: expect.stringContaining('Error'),
+      });
+    });
+
+    it('should work as expected with status code', () => {
+      expect(unit.TinyError('TEST_TAG', 500)().toObject()).toEqual({
+        _tag: 'TEST_TAG',
+        name: 'TEST_TAG',
+        message: 'TEST_TAG',
+        statusCode: 500,
+        codeTag: 'GENERAL',
+        cause: 'UNKNOWN',
+        internal: true,
+        stack: expect.stringContaining('Error'),
+      });
+    });
+  });
+
   describe('isTinyError', () => {
     it('should work as expected with a matching TinyError instance input', () => {
       expect(unit.isTinyError('TEST_TAG')(unit.toTinyError('TEST_TAG')('Boom!'))).toEqual(true);

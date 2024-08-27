@@ -18,9 +18,9 @@ export class TinyErrorC<T extends string> extends Error {
 
   constructor(
     tag: T,
-    name?: string,
-    message?: string,
-    statusCode?: number,
+    name: string,
+    message: string,
+    statusCode: number,
     codeTag?: string,
     cause?: unknown,
     internal?: boolean,
@@ -29,10 +29,10 @@ export class TinyErrorC<T extends string> extends Error {
     super();
 
     this._tag = tag;
-    this.name = name ?? tag;
-    this.message = message ?? tag;
+    this.name = name;
+    this.message = message;
+    this.statusCode = statusCode;
     this.codeTag = codeTag ?? TINY_ERROR_DEFAULT_CODE_TAG;
-    this.statusCode = statusCode ?? TINY_ERROR_DEFAULT_STATUS_CODE;
     this.cause = cause ?? TINY_ERROR_UNKNOWN_STRING();
     this.internal = internal ?? TINY_ERROR_DEFAULT_INTERNAL;
     this.stack = stack ?? super.stack ?? getStackTraceString();
@@ -43,8 +43,8 @@ export class TinyErrorC<T extends string> extends Error {
       _tag: this._tag,
       name: this.name,
       message: this.message,
-      codeTag: this.codeTag,
       statusCode: this.statusCode,
+      codeTag: this.codeTag,
       cause: this.cause,
       internal: this.internal,
       stack: this.stack,
@@ -57,7 +57,12 @@ export type TinyError<T extends string> = TinyErrorC<T>;
 
 // --------------------------------------------------------------------------
 export const TinyError =
-  <T extends string>(tag: T) =>
+  <T extends string>(
+    tag: T,
+    defaultStatusCode: number = TINY_ERROR_DEFAULT_STATUS_CODE,
+    defaultName: string = tag,
+    defaultMessage: string = tag
+  ) =>
   (
     name?: string,
     message?: string,
@@ -67,7 +72,16 @@ export const TinyError =
     internal?: boolean,
     stack?: string
   ): TinyError<T> => {
-    return new TinyErrorC(tag, name, message, statusCode, codeTag, cause, internal, stack);
+    return new TinyErrorC(
+      tag,
+      name ?? defaultName,
+      message ?? defaultMessage,
+      statusCode ?? defaultStatusCode,
+      codeTag,
+      cause,
+      internal,
+      stack
+    );
   };
 
 // --------------------------------------------------------------------------
