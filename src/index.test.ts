@@ -20,84 +20,74 @@ describe('TinyError', () => {
   });
 
   describe('toTinyError', () => {
-    it('should work as expected with a TinyError instance input', () => {
-      const error = new Error('BOOM!');
-      const actual = unit.toTinyError('MyTag')(error);
-      expect(JSON.stringify(actual)).toStrictEqual(
-        JSON.stringify({
-          _tag: 'MyTag',
-          statusCode: -1,
-          codeTag: 'GENERAL',
-          internal: true,
-          name: 'Error',
-          message: 'BOOM!',
-          cause: {},
-        })
-      );
-    });
-
-    it('should work as expected with an Error instance input', () => {
+    it('should work as expected with an TinyError instance input', () => {
       const error = unit.TinyError('MyTag')('BOOM!');
       const actual = unit.toTinyError('MyTag')(error);
-      expect(JSON.stringify(actual)).toStrictEqual(
-        JSON.stringify({
-          _tag: 'MyTag',
-          statusCode: -1,
-          codeTag: 'GENERAL',
-          internal: true,
-          name: 'BOOM!',
-          message: 'MyTag',
-          cause: 'UNKNOWN',
-        })
-      );
+      expect(actual.toObject()).toStrictEqual(error.toObject());
     });
 
-    it('should work as expected with a non-Error input with message', () => {
-      const error = { baggage: 'BOOM!' };
+    it('should work as expected with a Error instance input', () => {
+      const error = new Error('BOOM!');
       const actual = unit.toTinyError('MyTag')(error);
-      expect(JSON.stringify(actual)).toStrictEqual(
-        JSON.stringify({
-          _tag: 'MyTag',
-          statusCode: -1,
-          codeTag: 'GENERAL',
-          internal: true,
-          name: 'MyTag',
-          message: '{"baggage":"BOOM!"}',
-          cause: { baggage: 'BOOM!' },
-        })
-      );
+      expect(actual.toObject()).toStrictEqual({
+        _tag: 'MyTag',
+        cause: error,
+        codeTag: 'GENERAL',
+        internal: true,
+        message: 'BOOM!',
+        name: 'Error',
+        statusCode: -1,
+        stack: expect.stringContaining('Error: '),
+      });
     });
 
     it('should work as expected with a non-Error input with message', () => {
       const error = { message: 'BOOM!' };
       const actual = unit.toTinyError('MyTag')(error);
-      expect(JSON.stringify(actual)).toStrictEqual(
-        JSON.stringify({
-          _tag: 'MyTag',
-          statusCode: -1,
-          codeTag: 'GENERAL',
-          internal: true,
-          name: 'MyTag',
+      expect(actual.toObject()).toStrictEqual({
+        _tag: 'MyTag',
+        cause: {
           message: 'BOOM!',
-          cause: { message: 'BOOM!' },
-        })
-      );
+        },
+        codeTag: 'GENERAL',
+        internal: true,
+        message: 'BOOM!',
+        name: 'MyTag',
+        statusCode: -1,
+        stack: expect.stringContaining('Error'),
+      });
+    });
+
+    it('should work as expected with a non-Error input without message', () => {
+      const error = { baggage: 'BOOM!' };
+      const actual = unit.toTinyError('MyTag')(error);
+      expect(actual.toObject()).toStrictEqual({
+        _tag: 'MyTag',
+        cause: {
+          baggage: 'BOOM!',
+        },
+        codeTag: 'GENERAL',
+        internal: true,
+        message: '{"baggage":"BOOM!"}',
+        name: 'MyTag',
+        statusCode: -1,
+        stack: expect.stringContaining('Error'),
+      });
     });
 
     it('should work as expected with a string input', () => {
       const error = 'BOOM!';
       const actual = unit.toTinyError('MyTag')(error);
-      expect(JSON.stringify(actual)).toStrictEqual(
-        JSON.stringify({
-          _tag: 'MyTag',
-          statusCode: -1,
-          codeTag: 'GENERAL',
-          internal: true,
-          name: 'MyTag',
-          message: 'BOOM!',
-          cause: 'BOOM!',
-        })
-      );
+      expect(actual.toObject()).toStrictEqual({
+        _tag: 'MyTag',
+        cause: 'BOOM!',
+        codeTag: 'GENERAL',
+        internal: true,
+        message: 'BOOM!',
+        name: 'MyTag',
+        statusCode: -1,
+        stack: expect.stringContaining('Error'),
+      });
     });
   });
 });
