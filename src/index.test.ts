@@ -30,12 +30,14 @@ describe('TinyError', () => {
   });
 
   describe('isTinyError', () => {
+    const ctor = unit.TinyError('TEST_TAG', 123);
+
     it('should work as expected with a matching TinyError instance input', () => {
-      expect(unit.isTinyError('TEST_TAG')(unit.toTinyError('TEST_TAG')('Boom!'))).toEqual(true);
+      expect(unit.isTinyError('TEST_TAG')(unit.toTinyError('TEST_TAG', ctor)('Boom!'))).toEqual(true);
     });
 
     it('should work as expected with a non-matching TinyError instance input', () => {
-      expect(unit.isTinyError('TEST_TAG')(unit.toTinyError('OTHER_TAG')('Boom!'))).toEqual(false);
+      expect(unit.isTinyError('OTHER_TAG')(unit.toTinyError('TEST_TAG', ctor)('Boom!'))).toEqual(false);
     });
 
     it('should work as expected with an Error instance input', () => {
@@ -48,15 +50,17 @@ describe('TinyError', () => {
   });
 
   describe('toTinyError', () => {
+    const ctor = unit.TinyError('MyTag', 123);
+
     it('should work as expected with an TinyError instance input', () => {
       const error = unit.TinyError('MyTag')('BOOM!');
-      const actual = unit.toTinyError('MyTag')(error);
+      const actual = unit.toTinyError('MyTag', ctor)(error);
       expect(actual.toObject()).toStrictEqual(error.toObject());
     });
 
     it('should work as expected with a Error instance input', () => {
       const error = new Error('BOOM!');
-      const actual = unit.toTinyError('MyTag')(error);
+      const actual = unit.toTinyError('MyTag', ctor)(error);
       expect(actual.toObject()).toStrictEqual({
         _tag: 'MyTag',
         cause: error,
@@ -64,14 +68,14 @@ describe('TinyError', () => {
         internal: true,
         message: 'BOOM!',
         name: 'Error',
-        statusCode: -1,
+        statusCode: 123,
         stack: expect.stringContaining('Error: '),
       });
     });
 
     it('should work as expected with a non-Error input with message', () => {
       const error = { message: 'BOOM!' };
-      const actual = unit.toTinyError('MyTag')(error);
+      const actual = unit.toTinyError('MyTag', ctor)(error);
       expect(actual.toObject()).toStrictEqual({
         _tag: 'MyTag',
         cause: {
@@ -81,14 +85,14 @@ describe('TinyError', () => {
         internal: true,
         message: 'BOOM!',
         name: 'MyTag',
-        statusCode: -1,
+        statusCode: 123,
         stack: expect.stringContaining('Error'),
       });
     });
 
     it('should work as expected with a non-Error input without message', () => {
       const error = { baggage: 'BOOM!' };
-      const actual = unit.toTinyError('MyTag')(error);
+      const actual = unit.toTinyError('MyTag', ctor)(error);
       expect(actual.toObject()).toStrictEqual({
         _tag: 'MyTag',
         cause: {
@@ -98,14 +102,14 @@ describe('TinyError', () => {
         internal: true,
         message: '{"baggage":"BOOM!"}',
         name: 'MyTag',
-        statusCode: -1,
+        statusCode: 123,
         stack: expect.stringContaining('Error'),
       });
     });
 
     it('should work as expected with a string input', () => {
       const error = 'BOOM!';
-      const actual = unit.toTinyError('MyTag')(error);
+      const actual = unit.toTinyError('MyTag', ctor)(error);
       expect(actual.toObject()).toStrictEqual({
         _tag: 'MyTag',
         cause: 'BOOM!',
@@ -113,7 +117,7 @@ describe('TinyError', () => {
         internal: true,
         message: 'BOOM!',
         name: 'MyTag',
-        statusCode: -1,
+        statusCode: 123,
         stack: expect.stringContaining('Error'),
       });
     });
