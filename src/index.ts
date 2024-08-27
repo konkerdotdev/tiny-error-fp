@@ -17,9 +17,9 @@ export type TinyError<T extends string> = Error & {
   readonly message: string; // From Error
   readonly stack?: string; // From Error
 
-  readonly cause?: unknown;
   readonly statusCode: number;
   readonly codeTag: string;
+  readonly cause?: unknown;
   readonly internal: boolean;
 };
 
@@ -34,8 +34,8 @@ export class TinyErrorC<T extends string> extends Error {
     tag: T,
     name?: string,
     message?: string,
-    codeTag?: string,
     statusCode?: number,
+    codeTag?: string,
     cause?: unknown,
     internal?: boolean,
     stack?: string
@@ -59,13 +59,13 @@ export const TinyError =
   (
     name?: string,
     message?: string,
-    codeTag?: string,
     statusCode?: number,
+    codeTag?: string,
     cause?: unknown,
     internal?: boolean,
     stack?: string
   ): TinyError<T> => {
-    return new TinyErrorC(tag, name, message, codeTag, statusCode, cause, internal, stack);
+    return new TinyErrorC(tag, name, message, statusCode, codeTag, cause, internal, stack);
   };
 
 // --------------------------------------------------------------------------
@@ -81,20 +81,20 @@ export const toTinyError =
     x: unknown,
     name?: string,
     message?: string,
-    codeTag?: string,
     statusCode?: number,
+    codeTag?: string,
     cause?: unknown,
     internal?: boolean
   ): TinyError<T> => {
     if (isTinyError(tag)(x)) return x;
     if (isError(x)) {
-      return TinyError(tag)(name ?? x.name, message ?? x.message, codeTag, statusCode, cause ?? x, internal, x.stack);
+      return TinyError(tag)(name ?? x.name, message ?? x.message, statusCode, codeTag, cause ?? x, internal, x.stack);
     }
     if (hasErrorMessage(x)) {
-      return TinyError(tag)(name, message ?? x.message, codeTag, statusCode, cause ?? x, internal);
+      return TinyError(tag)(name, message ?? x.message, statusCode, codeTag, cause ?? x, internal);
     }
     if (typeof x === 'string') {
-      return TinyError(tag)(name, message ?? x, codeTag, statusCode, cause ?? x, internal);
+      return TinyError(tag)(name, message ?? x, statusCode, codeTag, cause ?? x, internal);
     }
     return TinyError(tag)(
       name,
@@ -104,8 +104,8 @@ export const toTinyError =
           P.Schema.encodeEither(P.Schema.parseJson()),
           P.Either.match({ onLeft: TINY_ERROR_UNKNOWN_STRING, onRight: P.identity })
         ),
-      codeTag,
       statusCode,
+      codeTag,
       cause ?? x,
       internal
     );
